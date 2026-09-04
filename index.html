@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>numerology lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F1E7;
+    --ink:#15130F;
+    --red:#D8362A;
+    --blue:#1E45C7;
+    --yellow:#F3B400;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Space Grotesk','Noto Sans SC', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1020px;margin:0 auto;padding:48px 24px 96px;}
+
+  header{
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:start;
+    gap:24px;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:28px;
+    margin-bottom:40px;
+  }
+  h1{
+    font-size:clamp(34px,6.5vw,60px);
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin:0 0 12px 0;
+    text-transform:lowercase;
+  }
+  header p{max-width:52ch;font-size:16px;margin:0;color:#3a362e;}
+
+  .header-side{display:flex;flex-direction:column;align-items:flex-end;gap:16px;}
+  .shape-cluster{position:relative;width:100px;height:100px;flex:0 0 auto;}
+  .shape-cluster div{position:absolute;}
+  .sc-circle{width:54px;height:54px;border-radius:50%;background:var(--red);top:0;left:0;}
+  .sc-square{width:46px;height:46px;background:var(--blue);bottom:0;right:0;}
+  .sc-triangle{width:0;height:0;border-left:25px solid transparent;border-right:25px solid transparent;border-bottom:42px solid var(--yellow);top:8px;right:6px;}
+
+  .lang-switch{display:flex;border:2.5px solid var(--ink);}
+  .lang-switch button{font-family:inherit;font-size:14px;font-weight:600;border:none;background:var(--paper);color:var(--ink);padding:8px 16px;cursor:pointer;}
+  .lang-switch button + button{border-left:2.5px solid var(--ink);}
+  .lang-switch button.active{background:var(--ink);color:var(--paper);}
+
+  .section-heading{
+    font-size:14px;font-weight:600;text-transform:lowercase;
+    margin:0 0 12px;color:#3a362e;
+  }
+  .section-block{margin-top:36px;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:0;
+    border-top:3px solid var(--ink);
+    border-left:3px solid var(--ink);
+  }
+  .grid.optional-grid{grid-template-columns:repeat(4,1fr);}
+  .card{
+    border-right:3px solid var(--ink);
+    border-bottom:3px solid var(--ink);
+    padding:26px 20px 24px;
+    background:var(--paper);
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .card .icon{width:30px;height:30px;flex:0 0 auto;}
+  .icon.square{background:var(--blue);}
+  .icon.triangle{width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-bottom:26px solid var(--yellow);}
+  .icon.circle{border-radius:50%;background:var(--red);}
+  .icon.square.alt{background:var(--yellow);}
+  .icon.triangle.alt{border-bottom-color:var(--blue);}
+  .icon.diamond{background:var(--ink);transform:rotate(45deg);width:22px;height:22px;margin:4px;}
+  .card label{font-size:13.5px;font-weight:600;text-transform:lowercase;}
+  .card input[type=text],.card input[type=date],.card input[type=tel]{
+    font-family:inherit;font-size:17px;font-weight:500;border:none;
+    border-bottom:2.5px solid var(--ink);background:transparent;padding:7px 2px;
+    color:var(--ink);outline:none;width:100%;
+  }
+  .card input:focus{border-bottom-color:var(--blue);}
+  .card input::placeholder{color:#8a8578;font-weight:400;}
+  .card .hint{font-size:12px;color:#726d5f;margin:0;}
+  .toggle-row{display:flex;align-items:center;gap:8px;margin-top:2px;}
+  .toggle-row input{width:16px;height:16px;accent-color:var(--blue);}
+  .toggle-row label{font-size:13px;font-weight:500;text-transform:none;color:#3a362e;}
+
+  .calc-btn{
+    display:inline-block;margin-top:28px;
+    background:var(--ink);color:var(--paper);
+    border:3px solid var(--ink);
+    font-family:inherit;font-size:16px;font-weight:600;
+    padding:14px 28px;text-transform:lowercase;cursor:pointer;letter-spacing:0.01em;
+  }
+  .calc-btn:hover{background:var(--blue);border-color:var(--blue);}
+
+  .section-label{
+    font-size:14px;font-weight:600;text-transform:lowercase;
+    margin:44px 0 14px;color:#3a362e;
+    border-top:2px solid var(--ink);padding-top:16px;
+  }
+  .section-label.bonus{color:#726d5f;}
+
+  .num-grid{
+    display:none;
+    grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+    gap:0;
+    border-top:3px solid var(--ink);
+    border-left:3px solid var(--ink);
+  }
+  .num-grid.show{display:grid;}
+  .num-card{
+    border-right:3px solid var(--ink);
+    border-bottom:3px solid var(--ink);
+    background:#fff;padding:22px 20px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .num-card .label{font-size:12.5px;font-weight:600;text-transform:lowercase;color:#55503f;}
+  .num-card .value-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .num-card .value{font-size:42px;font-weight:700;line-height:1;}
+  .num-card .archetype{font-size:15px;font-weight:600;}
+  .num-card .master-tag{
+    display:inline-block;font-size:11px;font-weight:600;
+    background:var(--yellow);border:2px solid var(--ink);
+    padding:2px 7px;text-transform:lowercase;width:fit-content;
+  }
+  .num-card .meaning{font-size:13.5px;color:#4a4636;}
+  .num-card .steps-toggle{font-size:12.5px;font-weight:500;color:#55503f;cursor:pointer;margin-top:4px;text-decoration:underline;text-underline-offset:3px;}
+  .num-card .steps{display:none;font-size:12.5px;color:#4a4636;background:var(--paper);border:2px solid var(--ink);padding:10px 12px;margin-top:4px;}
+  .num-card .steps.open{display:block;}
+
+  footer{margin-top:56px;padding-top:20px;border-top:3px solid var(--ink);font-size:12.5px;color:#726d5f;max-width:64ch;}
+
+  @media (max-width:760px){
+    .grid{grid-template-columns:1fr;}
+    .grid.optional-grid{grid-template-columns:1fr;}
+    header{grid-template-columns:1fr;}
+    .header-side{flex-direction:row-reverse;align-items:center;justify-content:space-between;}
+    .shape-cluster{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1 id="txt-title">numerology lab</h1>
+      <p id="txt-subtitle">Enter your full birth name and date of birth to get your five core numbers, using the Pythagorean method — the standard system in modern Western numerology.</p>
+    </div>
+    <div class="header-side">
+      <div class="lang-switch">
+        <button id="btn-lang-en" class="active" onclick="setLang('en')">EN</button>
+        <button id="btn-lang-zh" onclick="setLang('zh')">中</button>
+      </div>
+      <div class="shape-cluster">
+        <div class="sc-triangle"></div>
+        <div class="sc-square"></div>
+        <div class="sc-circle"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="section-block">
+    <div class="section-heading" id="txt-coreSectionHead">your details</div>
+    <div class="grid">
+      <div class="card">
+        <div class="icon square"></div>
+        <label id="txt-nameLabel" for="nameInput">full birth name</label>
+        <input id="nameInput" type="text" autocomplete="off">
+        <p class="hint" id="txt-nameHint">use the name on your birth certificate for the most accurate read</p>
+        <div class="toggle-row">
+          <input type="checkbox" id="yVowelToggle">
+          <label id="txt-yToggle" for="yVowelToggle">treat Y as a vowel</label>
+        </div>
+      </div>
+      <div class="card">
+        <div class="icon triangle"></div>
+        <label id="txt-dobLabel" for="dobInput">date of birth</label>
+        <input id="dobInput" type="text" inputmode="numeric" placeholder="dd/mm/yyyy" maxlength="10" oninput="formatDobInput(this)">
+        <p class="hint" id="txt-dobHint">used for your Life Path and Birthday numbers · dd/mm/yyyy</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block" style="margin-top:-3px;">
+    <div class="grid optional-grid">
+      <div class="card">
+        <div class="icon circle"></div>
+        <label for="phoneInput" id="txt-phoneLabel">phone number</label>
+        <input id="phoneInput" type="tel" autocomplete="off">
+        <p class="hint" id="txt-phoneHint">every digit counts toward this number</p>
+      </div>
+      <div class="card">
+        <div class="icon square alt"></div>
+        <label for="addressInput" id="txt-addressLabel">address</label>
+        <input id="addressInput" type="text" autocomplete="off">
+        <p class="hint" id="txt-addressHint">unit, street name, and postal digits all count</p>
+      </div>
+      <div class="card">
+        <div class="icon triangle alt"></div>
+        <label for="carplateInput" id="txt-carplateLabel">car plate</label>
+        <input id="carplateInput" type="text" autocomplete="off">
+        <p class="hint" id="txt-carplateHint">letters and digits both count toward this number</p>
+      </div>
+      <div class="card">
+        <div class="icon diamond"></div>
+        <label for="extraInput" id="txt-extraLabel">additional number</label>
+        <input id="extraInput" type="text" autocomplete="off">
+        <p class="hint" id="txt-extraHint">any other number you'd like read the same way</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="calc-btn" id="txt-calcBtn" onclick="calculateAll()">calculate my numbers</button>
+
+  <div class="section-label" id="coreLabel" style="display:none;"></div>
+  <div class="num-grid" id="coreGrid"></div>
+
+  <div class="section-label bonus" id="bonusLabel" style="display:none;"></div>
+  <div class="num-grid" id="bonusGrid"></div>
+
+  <footer id="txt-footer">
+    Calculated with the Pythagorean method (A–Z mapped 1–9, repeating), the standard system in Western numerology. Master Numbers 11, 22, and 33 are kept intact rather than reduced further. Everything runs in your browser — nothing you enter is sent anywhere. Numerology is for reflection, not prediction.
+  </footer>
+
+</div>
+
+<script>
+let LANG = 'en';
+
+const STRINGS = {
+  en: {
+    title:'numerology lab',
+    subtitle:'Enter your full birth name and date of birth to get your five core numbers, using the Pythagorean method — the standard system in modern Western numerology.',
+    coreSectionHead:'your details',
+    nameLabel:'full birth name', namePlaceholder:'e.g. Wei Ling Tan',
+    nameHint:'use the name on your birth certificate for the most accurate read',
+    yToggle:'treat Y as a vowel',
+    dobLabel:'date of birth', dobHint:'used for your Life Path and Birthday numbers · dd/mm/yyyy',
+    phoneLabel:'phone number', phonePlaceholder:'9123 4567', phoneHint:'every digit counts toward this number',
+    addressLabel:'address', addressPlaceholder:'e.g. Blk 123 Ang Mo Kio Ave 3, #05-678, 560123', addressHint:'unit, street name, and postal digits all count',
+    carplateLabel:'car plate', carplatePlaceholder:'e.g. SBA1234A', carplateHint:'letters and digits both count toward this number',
+    extraLabel:'additional number', extraPlaceholder:'e.g. a ticket number, locker number, lucky number', extraHint:"any other number you'd like read the same way",
+    calcBtn:'calculate my numbers',
+    coreLabel:'your five core numbers', bonusLabel:'bonus numbers',
+    showCalc:'show calculation', hideCalc:'hide calculation', masterTag:'master number',
+    labels:{lifePath:'life path', expression:'expression', soulUrge:'soul urge', personality:'personality', birthday:'birthday number',
+            phone:'phone number', address:'address', carplate:'car plate', extra:'additional number'},
+    bonusPrefix:'Every letter and digit is converted the same way as your name, then reduced — '
+  },
+  zh: {
+    title:'数字命理实验室',
+    subtitle:'输入您出生时的全名与出生日期，即可获得五个核心数字 —— 采用毕达哥拉斯数字命理法，这是现代西方数字命理学的标准方法。',
+    coreSectionHead:'您的资料',
+    nameLabel:'出生全名', namePlaceholder:'例如：陈伟玲',
+    nameHint:'使用出生证明上的姓名，结果最为准确',
+    yToggle:'将 Y 视为元音',
+    dobLabel:'出生日期', dobHint:'用于计算生命灵数与生日数 · 日/月/年',
+    phoneLabel:'电话号码', phonePlaceholder:'9123 4567', phoneHint:'每一位数字都会计入这个数字',
+    addressLabel:'地址', addressPlaceholder:'例如：宏茂桥3道123座 #05-678，邮编560123', addressHint:'门牌号、街道名称与邮编数字都会计入',
+    carplateLabel:'车牌号码', carplatePlaceholder:'例如：SBA1234A', carplateHint:'字母与数字都会计入这个数字',
+    extraLabel:'附加数字', extraPlaceholder:'例如：门票号、储物柜号、幸运数字', extraHint:'任何您想以同样方式解读的数字',
+    calcBtn:'计算我的数字',
+    coreLabel:'您的五个核心数字', bonusLabel:'附加数字',
+    showCalc:'查看计算过程', hideCalc:'隐藏计算过程', masterTag:'大师数字',
+    labels:{lifePath:'生命灵数', expression:'表达数', soulUrge:'灵魂渴望数', personality:'个性数', birthday:'生日数',
+            phone:'电话号码', address:'地址', carplate:'车牌号码', extra:'附加数字'},
+    bonusPrefix:'每个字母与数字都以与姓名相同的方式转换，再进行简化 —— '
+  }
+};
+
+const MEANINGS = {
+  en: {
+    1:{name:'Leader', text:'independent and driven, forges a path rather than following one'},
+    2:{name:'Diplomat', text:'cooperative and sensitive, works best alongside others'},
+    3:{name:'Creator', text:'expressive and sociable, communicates freely'},
+    4:{name:'Builder', text:'practical and disciplined, builds things that last'},
+    5:{name:'Adventurer', text:'restless and freedom-loving, drawn to change'},
+    6:{name:'Nurturer', text:'responsible and caring, protective of others'},
+    7:{name:'Seeker', text:'introspective and analytical, drawn to deeper truths'},
+    8:{name:'Achiever', text:'ambitious and results-driven, comfortable with authority'},
+    9:{name:'Humanitarian', text:'compassionate and generous, thinks beyond themselves'},
+    11:{name:'Intuitive', text:'heightened perception and awareness — a Master Number'},
+    22:{name:'Master Builder', text:'turns big visions into practical reality — a Master Number'},
+    33:{name:'Master Teacher', text:'selfless service and healing — a Master Number'}
+  },
+  zh: {
+    1:{name:'领导者', text:'独立而坚定，走自己的路，而非追随他人'},
+    2:{name:'协调者', text:'善于合作，敏感体贴，与他人协作时表现最佳'},
+    3:{name:'创造者', text:'表达力强，善于社交，乐于沟通'},
+    4:{name:'建造者', text:'务实且自律，建立经得起时间考验的事物'},
+    5:{name:'冒险家', text:'不安于现状，渴望自由，乐于拥抱改变'},
+    6:{name:'照护者', text:'有责任感，关怀他人，乐于保护身边的人'},
+    7:{name:'探索者', text:'内省而善于分析，追求更深层的真相'},
+    8:{name:'实干家', text:'雄心勃勃，注重成果，能够驾驭权威'},
+    9:{name:'博爱者', text:'富有同情心，慷慨大方，心怀他人'},
+    11:{name:'直觉者', text:'感知力敏锐，觉察力强 —— 大师数字'},
+    22:{name:'大师建造者', text:'能将宏大愿景转化为现实 —— 大师数字'},
+    33:{name:'大师导师', text:'无私奉献与疗愈 —— 大师数字'}
+  }
+};
+
+const LETTER_VALUES = {
+  a:1,j:1,s:1, b:2,k:2,t:2, c:3,l:3,u:3, d:4,m:4,v:4,
+  e:5,n:5,w:5, f:6,o:6,x:6, g:7,p:7,y:7, h:8,q:8,z:8, i:9,r:9
+};
+const VOWELS = ['a','e','i','o','u'];
+
+function setLang(lang){
+  LANG = lang;
+  document.getElementById('htmlRoot').lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.getElementById('btn-lang-en').classList.toggle('active', lang==='en');
+  document.getElementById('btn-lang-zh').classList.toggle('active', lang==='zh');
+  applyStrings();
+  calculateAll();
+}
+
+function applyStrings(){
+  const t = STRINGS[LANG];
+  document.getElementById('txt-title').textContent = t.title;
+  document.getElementById('txt-subtitle').textContent = t.subtitle;
+  document.getElementById('txt-coreSectionHead').textContent = t.coreSectionHead;
+  document.getElementById('txt-nameLabel').textContent = t.nameLabel;
+  document.getElementById('nameInput').placeholder = t.namePlaceholder;
+  document.getElementById('txt-nameHint').textContent = t.nameHint;
+  document.getElementById('txt-yToggle').textContent = t.yToggle;
+  document.getElementById('txt-dobLabel').textContent = t.dobLabel;
+  document.getElementById('txt-dobHint').textContent = t.dobHint;
+  document.getElementById('txt-phoneLabel').textContent = t.phoneLabel;
+  document.getElementById('phoneInput').placeholder = t.phonePlaceholder;
+  document.getElementById('txt-phoneHint').textContent = t.phoneHint;
+  document.getElementById('txt-addressLabel').textContent = t.addressLabel;
+  document.getElementById('addressInput').placeholder = t.addressPlaceholder;
+  document.getElementById('txt-addressHint').textContent = t.addressHint;
+  document.getElementById('txt-carplateLabel').textContent = t.carplateLabel;
+  document.getElementById('carplateInput').placeholder = t.carplatePlaceholder;
+  document.getElementById('txt-carplateHint').textContent = t.carplateHint;
+  document.getElementById('txt-extraLabel').textContent = t.extraLabel;
+  document.getElementById('extraInput').placeholder = t.extraPlaceholder;
+  document.getElementById('txt-extraHint').textContent = t.extraHint;
+  document.getElementById('txt-calcBtn').textContent = t.calcBtn;
+  document.getElementById('txt-footer').textContent = t.footer;
+  document.getElementById('coreLabel').textContent = t.coreLabel;
+  document.getElementById('bonusLabel').textContent = t.bonusLabel;
+}
+
+function formatDobInput(el){
+  let digits = el.value.replace(/\D/g,'').slice(0,8);
+  let out = digits;
+  if(digits.length >= 5) out = digits.slice(0,2) + '/' + digits.slice(2,4) + '/' + digits.slice(4);
+  else if(digits.length >= 3) out = digits.slice(0,2) + '/' + digits.slice(2);
+  el.value = out;
+}
+
+function parseDob(str){
+  const m = str.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m) return null;
+  const day = Number(m[1]), month = Number(m[2]), year = Number(m[3]);
+  if(month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return {day, month, year};
+}
+
+function reduceKeepMaster(n){
+  const steps = [n];
+  while(n > 9 && n !== 11 && n !== 22 && n !== 33){
+    n = String(n).split('').reduce((a,c)=>a+Number(c),0);
+    steps.push(n);
+  }
+  return {value:n, steps};
+}
+
+function toggleSteps(el){
+  const t = STRINGS[LANG];
+  const steps = el.nextElementSibling;
+  const open = steps.classList.toggle('open');
+  el.textContent = open ? t.hideCalc : t.showCalc;
+}
+
+function buildNumCard(labelText, value, stepsText){
+  const t = STRINGS[LANG];
+  const m = MEANINGS[LANG][value];
+  const isMaster = [11,22,33].includes(value);
+  return `
+    <div class="num-card">
+      <div class="label">${labelText}</div>
+      <div class="value-row">
+        <div class="value">${value}</div>
+        <div class="archetype">${m.name}</div>
+      </div>
+      ${isMaster ? `<span class="master-tag">${t.masterTag}</span>` : ''}
+      <div class="meaning">${m.text}</div>
+      <span class="steps-toggle" onclick="toggleSteps(this)">${t.showCalc}</span>
+      <div class="steps">${stepsText}</div>
+    </div>
+  `;
+}
+
+function lifePathStepsText(month, monthV, day, dayV, year, yearDigitSum, yearV, total, finalV){
+  if(LANG === 'zh'){
+    return `月 ${month} → ${monthV} · 日 ${day} → ${dayV} · 年 ${year} → ${yearDigitSum} → ${yearV}<br>合计：${monthV} + ${dayV} + ${yearV} = ${total} → ${finalV}`;
+  }
+  return `month ${month} → ${monthV} · day ${day} → ${dayV} · year ${year} → ${yearDigitSum} → ${yearV}<br>sum: ${monthV} + ${dayV} + ${yearV} = ${total} → ${finalV}`;
+}
+
+function birthdaySteps(day, steps){
+  if(LANG === 'zh') return `出生日期：${day} → ${steps.join(' → ')}`;
+  return `day of birth: ${day} → ${steps.join(' → ')}`;
+}
+
+function nameStepsText(kind, name, sum, steps, yTreatedAsVowel){
+  if(LANG === 'zh'){
+    if(kind==='expr') return `姓名「${name}」中所有字母之和为 ${sum} → ${steps.join(' → ')}`;
+    if(kind==='soul') return `仅元音字母${yTreatedAsVowel ? '（含 Y）' : ''}之和为 ${sum} → ${steps.join(' → ')}`;
+    if(kind==='pers') return `仅辅音字母${yTreatedAsVowel ? '（不含 Y）' : ''}之和为 ${sum} → ${steps.join(' → ')}`;
+  }
+  if(kind==='expr') return `all letters in "${name}" sum to ${sum} → ${steps.join(' → ')}`;
+  if(kind==='soul') return `vowels only${yTreatedAsVowel ? ' (Y included)' : ''} sum to ${sum} → ${steps.join(' → ')}`;
+  if(kind==='pers') return `consonants only${yTreatedAsVowel ? ' (Y excluded)' : ''} sum to ${sum} → ${steps.join(' → ')}`;
+}
+
+function mixedTextValue(raw){
+  const chars = raw.toLowerCase().split('');
+  let sum = 0, used = [];
+  chars.forEach(c => {
+    if(/[0-9]/.test(c)){ sum += Number(c); used.push(c); }
+    else if(/[a-z]/.test(c)){ const v = LETTER_VALUES[c]; if(v){ sum += v; used.push(c); } }
+  });
+  return {sum, used};
+}
+
+function bonusStepsText(used, sum, steps){
+  const usedStr = used.join(' ');
+  if(LANG === 'zh') return `计入的字符：${usedStr} · 之和为 ${sum} → ${steps.join(' → ')}`;
+  return `characters counted: ${usedStr} · sum to ${sum} → ${steps.join(' → ')}`;
+}
+
+function calculateAll(){
+  calculateCoreFive();
+  calculateBonusNumbers();
+}
+
+function calculateCoreFive(){
+  const name = document.getElementById('nameInput').value.trim();
+  const dobRaw = document.getElementById('dobInput').value.trim();
+  const dobParsed = parseDob(dobRaw);
+  const coreGrid = document.getElementById('coreGrid');
+  const coreLabel = document.getElementById('coreLabel');
+  const t = STRINGS[LANG];
+  const cards = {};
+
+  if(dobParsed){
+    const {day, month, year} = dobParsed;
+    const monthR = reduceKeepMaster(month);
+    const dayR = reduceKeepMaster(day);
+    const yearDigitSum = String(year).split('').reduce((a,c)=>a+Number(c),0);
+    const yearR = reduceKeepMaster(yearDigitSum);
+    const lifePathTotal = monthR.value + dayR.value + yearR.value;
+    const lifePath = reduceKeepMaster(lifePathTotal);
+    const lifePathSteps = lifePathStepsText(month, monthR.value, day, dayR.value, year, yearDigitSum, yearR.value, lifePathTotal, lifePath.value);
+    cards.lifePath = buildNumCard(t.labels.lifePath, lifePath.value, lifePathSteps);
+
+    const birthday = reduceKeepMaster(day);
+    cards.birthday = buildNumCard(t.labels.birthday, birthday.value, birthdaySteps(day, birthday.steps));
+  }
+
+  if(name){
+    const yTreatedAsVowel = document.getElementById('yVowelToggle').checked;
+    const vowelSet = yTreatedAsVowel ? [...VOWELS,'y'] : VOWELS;
+    const letters = name.toLowerCase().replace(/[^a-z]/g,'').split('');
+    let exprSum = 0, soulSum = 0, persSum = 0;
+    letters.forEach(l => {
+      const v = LETTER_VALUES[l] || 0;
+      exprSum += v;
+      if(vowelSet.includes(l)) soulSum += v; else persSum += v;
+    });
+    const expression = reduceKeepMaster(exprSum);
+    const soulUrge = reduceKeepMaster(soulSum);
+    const personality = reduceKeepMaster(persSum);
+
+    cards.expression = buildNumCard(t.labels.expression, expression.value, nameStepsText('expr', name, exprSum, expression.steps, yTreatedAsVowel));
+    cards.soulUrge = buildNumCard(t.labels.soulUrge, soulUrge.value, nameStepsText('soul', name, soulSum, soulUrge.steps, yTreatedAsVowel));
+    cards.personality = buildNumCard(t.labels.personality, personality.value, nameStepsText('pers', name, persSum, personality.steps, yTreatedAsVowel));
+  }
+
+  const order = ['lifePath','expression','soulUrge','personality','birthday'];
+  const html = order.map(k => cards[k]).filter(Boolean).join('');
+
+  if(!html){
+    coreGrid.classList.remove('show');
+    coreLabel.style.display = 'none';
+    return;
+  }
+
+  coreGrid.innerHTML = html;
+  coreGrid.classList.add('show');
+  coreLabel.style.display = 'block';
+}
+
+function calculateBonusNumbers(){
+  const t = STRINGS[LANG];
+  const bonusGrid = document.getElementById('bonusGrid');
+  const bonusLabel = document.getElementById('bonusLabel');
+
+  const fields = [
+    {id:'phoneInput', label:t.labels.phone},
+    {id:'addressInput', label:t.labels.address},
+    {id:'carplateInput', label:t.labels.carplate},
+    {id:'extraInput', label:t.labels.extra}
+  ];
+
+  let html = '';
+  fields.forEach(f => {
+    const raw = document.getElementById(f.id).value.trim();
+    if(!raw) return;
+    const {sum, used} = mixedTextValue(raw);
+    if(!sum) return;
+    const reduced = reduceKeepMaster(sum);
+    html += buildNumCard(f.label, reduced.value, bonusStepsText(used, sum, reduced.steps));
+  });
+
+  if(!html){
+    bonusGrid.classList.remove('show');
+    bonusLabel.style.display = 'none';
+    return;
+  }
+  bonusGrid.innerHTML = html;
+  bonusGrid.classList.add('show');
+  bonusLabel.style.display = 'block';
+}
+
+applyStrings();
+</script>
+</body>
+</html>
